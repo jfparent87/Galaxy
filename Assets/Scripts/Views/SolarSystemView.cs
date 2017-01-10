@@ -7,6 +7,7 @@ public class SolarSystemView : MonoBehaviour {
     GameController gameController;
     SolarSystem solarSystem;
     public Sprite[] sprites;
+    private long zoomLevel = 100000000000;
 
 	// Use this for initialization
 	void Start () {
@@ -18,14 +19,24 @@ public class SolarSystemView : MonoBehaviour {
         solarSystem = gameController.galaxy.SolarSystems[solarSystemId];
 
         for (int i = 0; i < solarSystem.childrens.Count; i++) {
-            Orbital orbital = solarSystem.childrens[i];
-
-            GameObject go = new GameObject();
-            go.transform.SetParent(this.transform);
-            SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = sprites[orbital.graphicID];
+            MakeSpriteForOrbital(this.transform, solarSystem.childrens[i]);
         }
     }
+
+    void MakeSpriteForOrbital(Transform transformParent, Orbital orbital) {
+        GameObject go = new GameObject();
+        go.transform.SetParent(transformParent);
+
+        go.transform.position = orbital.Position / zoomLevel;
+
+        SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
+        sr.sprite = sprites[orbital.graphicID];
+
+        for (int i = 0; i < orbital.childrens.Count; i++) {
+            MakeSpriteForOrbital(go.transform, orbital.childrens[i]);
+        }
+    }
+
 	
 	// Update is called once per frame
 	void Update () {
